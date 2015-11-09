@@ -12,51 +12,64 @@ import systemsfailed.world_sim.world.world_gen.SimplexNoiseGenerator;
 
 public class Test
 {
+	
+	public class container
+	{
+		public int num;
+		
+		public container(int i)
+		{
+			num = i;
+		}
+	}
+	
 	public static void main(String[] args)
 	{
-		final int width = 640;
-		final int height = 640;
-		final double size = 16;
-		final int octaves = 8; //Smoothe texture or blocky
-		Random rand = new Random();
+		/*
+		int height = 1024;
+		int width = 1024;
 		
-		SimplexNoiseGenerator noise1 = new SimplexNoiseGenerator(rand.nextLong());
+		SimplexNoiseGenerator gen = new SimplexNoiseGenerator(System.currentTimeMillis());
+		double[][] n1 =  new double[height][width];
 		
-		double[][] n1 = new double[height][width];
-
+		double largest = 0;
+		double smallest = 0;
 		
-		
-			for(int y = 0; y < height; y++)
-			{	
-				for(int x = 0; x < width; x++)
-				{	
-					double total = 0; 
-					double maxVal = 0;
-					double freq = 1;
-					double amp = 1;
-					double con = 2; //Bigger/smaller grouping of colors
-					for(int i = 0; i < octaves; i++)
-					{
-						total += noise1.eval(x / freq, y / freq, 0.0) * amp;
-						maxVal += amp;
-						amp *= con;
-						freq *=2;
-					}
-					n1[y][x] = total/maxVal;
-				}
+		for(int y = 0; y < height; y++)
+		{
+			for(int x = 0; x < width; x++)
+			{
+				n1[y][x] = sumOctave(32, x, y, .5, .007, -1, 1, gen);
+				
+				if(n1[x][y] > largest)
+					largest = n1[x][y];
+				if(n1[x][y] < smallest)
+					smallest = n1[x][y];
+				
 			}
-			
-					
+		}
+		
+		System.out.println("Largest: " + largest + " Smallest: " + smallest);
+		
+		
 		BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		for (int y = 0; y < height; y++)
 		{
 			for (int x = 0; x < width; x++)
 			{
-				int rgb = 0x010101 * (int)((n1[y][x] + 1) * 127.5);
+				int rgb = 0;
+				
+				if(n1[y][x] < .55)
+					rgb = 0x0000EE;
+				else if(n1[y][x] <= 1)
+					rgb = 0x008B00;
+			
+				
+				
 				image.setRGB(x, y, rgb);
 			}
 		}
-			
+		
 		JFrame frame = new JFrame();
 		ImageIcon icon = new ImageIcon(image);
 		JLabel label = new JLabel();
@@ -66,6 +79,31 @@ public class Test
 		frame.add(label);
 		frame.setVisible(true);
 		
-			
+		*/
+		
+		
+		
+	}
+	
+	static double sumOctave(int octaves, int x, int y,  double persistence, double scale, int low, int high, SimplexNoiseGenerator gen)
+	{
+		double maxAmp = 0;
+		double amp = 1;
+		double freq = scale;
+		double noise = 0;
+		
+		for(int i = 0; i < octaves; i++)
+		{
+			noise += gen.eval(x * freq, y * freq, 1) * amp;
+			maxAmp += amp;
+			amp *= persistence;
+			freq *= 2;
 		}
+		
+		noise /= maxAmp;
+		noise = (noise - low) / (high - low);
+	
+		return noise;
+	}
+	
 }
