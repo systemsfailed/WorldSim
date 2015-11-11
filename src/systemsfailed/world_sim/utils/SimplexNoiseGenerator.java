@@ -1,4 +1,4 @@
-package systemsfailed.world_sim.world.world_gen;
+package systemsfailed.world_sim.utils;
 
 
 /*
@@ -2137,4 +2137,25 @@ public class SimplexNoiseGenerator {
 	     3, -1, -1, -1,      1, -3, -1, -1,      1, -1, -3, -1,      1, -1, -1, -3,
 	    -3, -1, -1, -1,     -1, -3, -1, -1,     -1, -1, -3, -1,     -1, -1, -1, -3,
 	};
+	
+	
+	public double sumOctave(int octaves, int x, int y,  double persistence, double scale, int max)
+	{
+		double maxAmp = 0;
+		double amp = 1;
+		double freq = scale;
+		double noise = 0;
+		
+		for(int i = 0; i < octaves; i++)
+		{
+			noise += eval(x * freq, y * freq, 1) * amp;
+			maxAmp += amp;
+			amp *= persistence;
+			freq *= 2;
+		}
+		
+		noise /= maxAmp;
+	
+		return (noise + 1) / 2 * max;
+	}
 }

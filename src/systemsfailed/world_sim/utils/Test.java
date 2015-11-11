@@ -8,8 +8,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
-import systemsfailed.world_sim.world.world_gen.SimplexNoiseGenerator;
-
 public class Test
 {
 	
@@ -25,7 +23,7 @@ public class Test
 	
 	public static void main(String[] args)
 	{
-		/*
+	
 		int height = 1024;
 		int width = 1024;
 		
@@ -35,11 +33,12 @@ public class Test
 		double largest = 0;
 		double smallest = 0;
 		
+		/*
 		for(int y = 0; y < height; y++)
 		{
 			for(int x = 0; x < width; x++)
 			{
-				n1[y][x] = sumOctave(32, x, y, .5, .007, -1, 1, gen);
+				n1[y][x] = sumOctave(32, x, y, .5, .007,  gen = new SimplexNoiseGenerator());
 				
 				if(n1[x][y] > largest)
 					largest = n1[x][y];
@@ -48,9 +47,22 @@ public class Test
 				
 			}
 		}
+		*/
+		double val;
+		for(int y = 0; y < height; y++)
+			for(int x = 0; x < width; x++)
+				{
+					val = ((gen.eval(x, y, 1) + 1) / 2 * 100) * ;
+					
+					n1[y][x] = (int) val;
+					if(n1[x][y] > largest)
+						largest = n1[x][y];
+					if(n1[x][y] < smallest)
+						smallest = n1[x][y];
+				}
+		
 		
 		System.out.println("Largest: " + largest + " Smallest: " + smallest);
-		
 		
 		BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		for (int y = 0; y < height; y++)
@@ -59,14 +71,18 @@ public class Test
 			{
 				int rgb = 0;
 				
-				if(n1[y][x] < .55)
+				/*
+				if(n1[y][x] < largest * .65)
 					rgb = 0x0000EE;
-				else if(n1[y][x] <= 1)
+				else if(n1[y][x] < largest * .85)
 					rgb = 0x008B00;
-			
+				else if(n1[y][x] <= 255)
+					rgb = 0x808A87;
+				*/
 				
-				
+				rgb = (int) n1[y][x] * 0x0000EE; 
 				image.setRGB(x, y, rgb);
+				
 			}
 		}
 		
@@ -79,13 +95,10 @@ public class Test
 		frame.add(label);
 		frame.setVisible(true);
 		
-		*/
-		
-		
-		
 	}
 	
-	static double sumOctave(int octaves, int x, int y,  double persistence, double scale, int low, int high, SimplexNoiseGenerator gen)
+	
+	static double sumOctave(int octaves, int x, int y,  double persistence, double scale, SimplexNoiseGenerator gen)
 	{
 		double maxAmp = 0;
 		double amp = 1;
@@ -101,9 +114,11 @@ public class Test
 		}
 		
 		noise /= maxAmp;
-		noise = (noise - low) / (high - low);
+		
+		noise = (noise + 1) / 2 * 255;
 	
 		return noise;
 	}
+	
 	
 }
