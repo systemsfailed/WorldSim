@@ -5,14 +5,23 @@ import systemsfailed.world_sim.utils.SimplexNoiseGenerator;
 public class World 
 {
 	int[][] heightmap,heatmap;
-	int max;
+	int maxheight, maxtemp;
+	private long seed;
 	
 	public World(String seed, int height, int width)
 	{
+		this.seed = seed.hashCode();
 		SimplexNoiseGenerator generator = new SimplexNoiseGenerator(seed.hashCode());
 		generateHeightmap(height, width, generator);
-		
-		
+		generateHeatmap(height, width, generator);
+	}
+	
+	public World(int height, int width)
+	{
+		this.seed = System.currentTimeMillis();
+		SimplexNoiseGenerator generator = new SimplexNoiseGenerator(seed);
+		generateHeightmap(height, width, generator);
+		generateHeatmap(height, width, generator);
 	}
 	
 	
@@ -27,38 +36,54 @@ public class World
 	 */
 	private void generateHeightmap(int height, int width, SimplexNoiseGenerator gen)
 	{
-		double[][] map = new double[height][width];
+		int max = 50;
+		
+		heightmap = new int[height][width];
+		heatmap = new int [height][width];
+		
 		for(int y = 0; y < height; y++)
 		{
 			for(int x = 0; x < width; x++)
 			{	
-				heightmap[y][x] = (int)gen.sumOctave(16, x, y, .5, .007, 255);
+				heightmap[y][x] = (int)gen.sumOctave(16, x, y, 1, .5, .007, 255);
+				if(heightmap[y][x] > max)
+					max = heightmap[y][x];
 			}	
 		}
+		this.maxheight = max;
 	}
 	
 	private void generateHeatmap(int height, int width, SimplexNoiseGenerator generator)
 	{
-		double val;
+		int max = 50; 
 		for(int y = 0; y < height; y++)
 			for(int x = 0; x < width; x++)
-				{
-					val = generator.eval(x, y, 1);
-					if(y <= height * .25)
-						val *= .3;
-					else if(y <= height * .4)
-						val *= .75;
-					else if(y <= height * .6)
-						val *= 1.25;
-					else if(y <= height * .75)
-						val *= .75;
-					else if(y <= height)
-						val *= .3;
-					
-					heatmap[y][x] = (int) (val + 1) / 2 * 100;
+				{	
+					heatmap[y][x] = (int)(generator.sumOctave(16, x, y, 0, .5, .007, 100)) * Math.pow(java.lang.Math.E, arg1);
+					if(heatmap[y][x] > max)
+						max = heatmap[y][x];
 				}
-		
+		this.maxtemp = max;
 	}
 	
+	public int[][] getHeightmap()
+	{
+		return heightmap;
+	}
+	
+	public int[][] getHeatmap()
+	{
+		return heatmap;
+	}
+
+	public int getMaxHeight()
+	{
+		return maxheight;
+	}
+	
+	public int getMaxTemp()
+	{
+		return maxtemp;
+	}
 	
 }

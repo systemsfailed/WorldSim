@@ -2139,7 +2139,7 @@ public class SimplexNoiseGenerator {
 	};
 	
 	
-	public double sumOctave(int octaves, int x, int y,  double persistence, double scale, int max)
+	public double sumOctave(int octaves, int x, int y, int z,  double persistence, double scale, int max)
 	{
 		double maxAmp = 0;
 		double amp = 1;
@@ -2148,7 +2148,7 @@ public class SimplexNoiseGenerator {
 		
 		for(int i = 0; i < octaves; i++)
 		{
-			noise += eval(x * freq, y * freq, 1) * amp;
+			noise += eval(x * freq, y * freq, z) * amp;
 			maxAmp += amp;
 			amp *= persistence;
 			freq *= 2;
