@@ -55,11 +55,11 @@ public class World
 	
 	private void generateHeatmap(int height, int width, SimplexNoiseGenerator generator)
 	{
-		int max = 50; 
+		int max = 50;  
 		for(int y = 0; y < height; y++)
 			for(int x = 0; x < width; x++)
-				{	
-					heatmap[y][x] = (int)((generator.sumOctave(16, x, y, 0, .5, .007, 100)) * Math.pow(Math.E, -(Math.abs(y - height/2) / (height * .90))));
+				{						
+					heatmap[y][x] = (int)((generator.sumOctave(16, x, y, 0, .5, .007, 100)) * Math.pow(Math.E, -Math.abs(y - (height/2) ) / (height * .95) ) );
 					if(heatmap[y][x] > max)
 						max = heatmap[y][x];
 				}

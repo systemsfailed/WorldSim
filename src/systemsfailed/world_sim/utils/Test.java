@@ -46,52 +46,25 @@ public class Test
 				if(heightmap[y][x] < largest * .65)
 					rgb = 0x0000EE;
 				else if(heightmap[y][x] < largest * .85)
-					{
+				{
 					if(heatmap[y][x] < maxtemp * .4)
 						rgb = 0xFCFCFC;
+					else if(heatmap[y][x] < maxtemp * .50)
+						rgb = 0x2264800;
 					else if(heatmap[y][x] < maxtemp * .75)
 						rgb = 0x008B00;
 					else
 						rgb = 0xF4A460;
-
-					}
+				}
 				else if(heightmap[y][x] <= 255)
 					rgb = 0x808A87;
+				
 				
 				image.setRGB(x, y, rgb);
 				
 			}
 		}
-		
-		/*
-		for(int y = 1; y < height - 1; y++)
-			for(int x = 1; x < width - 1; x++)
-			{
-				int numNeighbors = 0;
-				if(image.getRGB(x,y) == 0xF4A460)
-				{
-					if(image.getRGB(x + 1, y) == 0xF4A460)
-					{
-						numNeighbors++;
-					}
-					if(image.getRGB(x -1, y) == 0xF4A460)
-					{
-						numNeighbors++;
-					}
-					if(image.getRGB(x, y + 1) == 0xF4A460)
-					{
-						numNeighbors++;
-					}
-					if(image.getRGB(x, y - 1) == 0xF4A460)
-					{
-						numNeighbors++;
-					}
-				
-					if(numNeighbors < 3)
-						image.setRGB(x, y, 0x008B00);
-				}
-			}
-		*/
+	
 		
 		JFrame frame = new JFrame();
 		ImageIcon icon = new ImageIcon(image);
@@ -103,29 +76,5 @@ public class Test
 		frame.setVisible(true);
 		
 	}
-	
-	
-	static double sumOctave(int octaves, int x, int y,  double persistence, double scale, SimplexNoiseGenerator gen)
-	{
-		double maxAmp = 0;
-		double amp = 1;
-		double freq = scale;
-		double noise = 0;
-		
-		for(int i = 0; i < octaves; i++)
-		{
-			noise += gen.eval(x * freq, y * freq, 1) * amp;
-			maxAmp += amp;
-			amp *= persistence;
-			freq *= 2;
-		}
-		
-		noise /= maxAmp;
-		
-		noise = (noise + 1) / 2 * 255;
-	
-		return noise;
-	}
-	
 	
 }
