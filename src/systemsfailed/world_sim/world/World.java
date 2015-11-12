@@ -59,7 +59,7 @@ public class World
 		for(int y = 0; y < height; y++)
 			for(int x = 0; x < width; x++)
 				{	
-					heatmap[y][x] = (int)(generator.sumOctave(16, x, y, 0, .5, .007, 100)) * Math.pow(java.lang.Math.E, arg1);
+					heatmap[y][x] = (int)((generator.sumOctave(16, x, y, 0, .5, .007, 100)) * Math.pow(Math.E, -(Math.abs(y - height/2) / (height * .90))));
 					if(heatmap[y][x] > max)
 						max = heatmap[y][x];
 				}
