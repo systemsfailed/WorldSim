@@ -4,8 +4,10 @@ import systemsfailed.world_sim.utils.SimplexNoiseGenerator;
 
 public class World 
 {
-	int[][] heightmap,heatmap;
-	int maxheight, maxtemp;
+	short[] heightmap;
+	byte[] heatmap;
+	short maxheight; 
+	byte maxtemp;
 	private long seed;
 	
 	public World(String seed, int height, int width)
@@ -16,12 +18,36 @@ public class World
 		generateHeatmap(height, width, generator);
 	}
 	
-	public World(int height, int width)
+	public World(final int height, final int width)
 	{
 		this.seed = System.currentTimeMillis();
-		SimplexNoiseGenerator generator = new SimplexNoiseGenerator(seed);
-		generateHeightmap(height, width, generator);
-		generateHeatmap(height, width, generator);
+		final SimplexNoiseGenerator generator = new SimplexNoiseGenerator(seed);
+		SimplexNoiseGenerator generator2 = new SimplexNoiseGenerator(seed);
+		
+		Thread t1 = new Thread()
+		{	
+			@Override
+			public void run()
+			{
+				generateHeightmap(height, width, generator);
+				this.interrupt();
+			}
+		};
+		Thread t2 = new Thread()
+		{	
+			@Override
+			public void run()
+			{
+				generateHeatmap(height, width, generator);
+				this.interrupt();
+			}
+		};
+		
+		t1.start();
+		t2.start();
+		
+		while(!t1.isInterrupted() && !t2.isInterrupted()){};
+		
 	}
 	
 	
@@ -36,18 +62,17 @@ public class World
 	 */
 	private void generateHeightmap(int height, int width, SimplexNoiseGenerator gen)
 	{
-		int max = 50;
+		short max = 50;
 		
-		heightmap = new int[height][width];
-		heatmap = new int [height][width];
+		heightmap = new short[height * width];
 		
 		for(int y = 0; y < height; y++)
 		{
 			for(int x = 0; x < width; x++)
 			{	
-				heightmap[y][x] = (int)gen.sumOctave(16, x, y, 1, .5, .007, 255);
-				if(heightmap[y][x] > max)
-					max = heightmap[y][x];
+				heightmap[x + y * width] = (short)gen.sumOctave(16, x, y, 1, .5, .007, 255);
+				if(heightmap[x + y * width] > max)
+					max = heightmap[x + y * width];
 			}	
 		}
 		this.maxheight = max;
@@ -55,23 +80,24 @@ public class World
 	
 	private void generateHeatmap(int height, int width, SimplexNoiseGenerator generator)
 	{
-		int max = 50;  
+		heatmap = new byte [height * width];
+		byte max = 50;  
 		for(int y = 0; y < height; y++)
 			for(int x = 0; x < width; x++)
 				{						
-					heatmap[y][x] = (int)((generator.sumOctave(16, x, y, 0, .5, .007, 100)) * Math.pow(Math.E, -Math.abs(y - (height/2) ) / (height * .95) ) );
-					if(heatmap[y][x] > max)
-						max = heatmap[y][x];
+					heatmap[x + y * width] = (byte)((generator.sumOctave(8, x, y, 0, .5, .007, 100)) * Math.pow(Math.E, -Math.abs(y - (height/2) ) / (height * .95) ) );
+					if(heatmap[x + y * width] > max)
+						max = heatmap[x + y * width];
 				}
 		this.maxtemp = max;
 	}
 	
-	public int[][] getHeightmap()
+	public short[] getHeightmap()
 	{
 		return heightmap;
 	}
 	
-	public int[][] getHeatmap()
+	public byte[] getHeatmap()
 	{
 		return heatmap;
 	}

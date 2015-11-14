@@ -32,8 +32,8 @@ public class Test
 		World world = new World("TestWorld", height, width);
 		
 		BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-		int[][] heightmap = world.getHeightmap();
-		int[][] heatmap = world.getHeatmap();
+		short[] heightmap = world.getHeightmap();
+		byte[] heatmap = world.getHeatmap();
 		int largest = world.getMaxHeight();
 		int maxtemp = world.getMaxTemp();
 		
@@ -43,20 +43,20 @@ public class Test
 			{
 				int rgb = 0;
 				
-				if(heightmap[y][x] < largest * .65)
+				if(heightmap[x + y * width] < largest * .65)
 					rgb = 0x0000EE;
-				else if(heightmap[y][x] < largest * .85)
+				else if(heightmap[x + y * width] < largest * .85)
 				{
-					if(heatmap[y][x] < maxtemp * .4)
+					if(heatmap[x + y * width] < maxtemp * .4)
 						rgb = 0xFCFCFC;
-					else if(heatmap[y][x] < maxtemp * .50)
+					else if(heatmap[x + y * width] < maxtemp * .50)
 						rgb = 0x2264800;
-					else if(heatmap[y][x] < maxtemp * .75)
+					else if(heatmap[x + y * width] < maxtemp * .75)
 						rgb = 0x008B00;
 					else
 						rgb = 0xF4A460;
 				}
-				else if(heightmap[y][x] <= 255)
+				else if(heightmap[x + y * width] <= 255)
 					rgb = 0x808A87;
 				
 				
