@@ -11,14 +11,15 @@ public class Tile
 	public int color;
 	public byte resource;
 	
-	public Tile(int id)
+	public Tile(int id, int res)
 	{
 		this.id = (byte) id;
+		this.resource = (byte) res;
 		if(tileTypes[id] != null)
 			throw new RuntimeException("Duplicate tile IDs found");
 	}
 	
-	public int getNumResources()
+	public int getResource()
 	{
 		return resource;
 	}

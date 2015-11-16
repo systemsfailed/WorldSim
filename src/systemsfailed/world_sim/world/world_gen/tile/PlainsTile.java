@@ -4,8 +4,7 @@ public class PlainsTile extends Tile
 {
 	public PlainsTile(int id)
 	{
-		super(id);
-		resource = 1; //Resource ID for food
+		super(id, 1);
 		color = 0x008B00;
 	}
 

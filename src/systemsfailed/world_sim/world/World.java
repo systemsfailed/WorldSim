@@ -13,24 +13,17 @@ public class World
 	public World(String seed, int height, int width)
 	{
 		this.seed = seed.hashCode();
-		SimplexNoiseGenerator generator = new SimplexNoiseGenerator(seed.hashCode());
-		generateHeightmap(height, width, generator);
-		generateHeatmap(height, width, generator);
-	}
-	
-	public World(final int height, final int width)
-	{
-		this.seed = System.currentTimeMillis();
-		final SimplexNoiseGenerator generator = new SimplexNoiseGenerator(seed);
-		SimplexNoiseGenerator generator2 = new SimplexNoiseGenerator(seed);
+		final SimplexNoiseGenerator generator = new SimplexNoiseGenerator(this.seed);
+		final SimplexNoiseGenerator generator2 = new SimplexNoiseGenerator(this.seed);
 		
 		Thread t1 = new Thread()
 		{	
 			@Override
 			public void run()
 			{
+				System.out.println("Starting 1");
 				generateHeightmap(height, width, generator);
-				this.interrupt();
+				System.out.println("Finishing 1");
 			}
 		};
 		Thread t2 = new Thread()
@@ -38,18 +31,60 @@ public class World
 			@Override
 			public void run()
 			{
+				System.out.println("Starting 2");
 				generateHeatmap(height, width, generator);
-				this.interrupt();
+				System.out.println("Finishing 2");
 			}
 		};
 		
 		t1.start();
 		t2.start();
 		
-		while(!t1.isInterrupted() && !t2.isInterrupted()){};
-		
+		try
+		{
+		t1.join();
+		t2.join();
+		}catch(Exception e)
+		{e.printStackTrace();}
 	}
 	
+	public World(final int height, final int width)
+	{
+		this.seed = System.currentTimeMillis();
+		final SimplexNoiseGenerator generator = new SimplexNoiseGenerator(seed);
+		final SimplexNoiseGenerator generator2 = new SimplexNoiseGenerator(seed);
+		
+		Thread t1 = new Thread()
+		{	
+			@Override
+			public void run()
+			{
+				System.out.println("Starting 1");
+				generateHeightmap(height, width, generator);
+				System.out.println("Finishing 1");
+			}
+		};
+		Thread t2 = new Thread()
+		{	
+			@Override
+			public void run()
+			{
+				System.out.println("Starting 2");
+				generateHeatmap(height, width, generator);
+				System.out.println("Finishing 2");
+			}
+		};
+		
+		t1.start();
+		t2.start();
+		
+		try
+		{
+		t1.join();
+		t2.join();
+		}catch(Exception e)
+		{e.printStackTrace();}
+	}
 	
 	/**
 	 * Generates the heightmap that the world map will be based on
