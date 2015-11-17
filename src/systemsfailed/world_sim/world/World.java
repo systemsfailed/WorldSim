@@ -9,9 +9,12 @@ public class World
 	short maxheight; 
 	byte maxtemp;
 	private long seed;
+	private int height,width;
 	
-	public World(String seed, int height, int width)
+	public World(String seed, final int height, final int width)
 	{
+		this.height = height;
+		this.width = width;
 		this.seed = seed.hashCode();
 		final SimplexNoiseGenerator generator = new SimplexNoiseGenerator(this.seed);
 		final SimplexNoiseGenerator generator2 = new SimplexNoiseGenerator(this.seed);
@@ -32,7 +35,7 @@ public class World
 			public void run()
 			{
 				System.out.println("Starting 2");
-				generateHeatmap(height, width, generator);
+				generateHeatmap(height, width, generator2);
 				System.out.println("Finishing 2");
 			}
 		};
@@ -145,6 +148,16 @@ public class World
 	public int getMaxTemp()
 	{
 		return maxtemp;
+	}
+	
+	public int getHeight()
+	{
+		return height;
+	}
+	
+	public int getWidth()
+	{
+		return width;
 	}
 	
 }

@@ -4,8 +4,8 @@ public class PlainsTile extends Tile
 {
 	public PlainsTile(int id)
 	{
-		super(id, 1);
+		super(id);
 		color = 0x008B00;
-	}
+	};
 
 }
