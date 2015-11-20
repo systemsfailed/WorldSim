@@ -24,11 +24,22 @@ public class VariableMap extends JPanel
 	private short[] heightmap;
 	private boolean gridMarks;
 	
-	public VariableMap(int worldHeight, int worldWidth, int numRows, int numCols, int gridSize)
+	/**
+	 * Creates a map representation of a given world
+	 * @param world
+	 * 	The world object to be painted in map form
+	 * @param numRows
+	 * 	The number of grid squares to be displayed at once vertically
+	 * @param numCols
+	 * 	The number of grid squares to be displayed at one horizontally
+	 * @param gridSize
+	 * 	The starting size, in pixels of the grid squares
+	 */
+	public VariableMap(World world, int numRows, int numCols, int gridSize)
 	{
 		super(new BorderLayout(10, 10));
 		
-		world = new World("TestWorld", worldWidth, worldHeight);
+		this.world = world;
 		height = world.getHeight();
 		width = world.getWidth();
 		heatMap = world.getHeatmap();
@@ -37,8 +48,8 @@ public class VariableMap extends JPanel
 		maxTemp = world.getMaxTemp();
 		this.numRows = numRows;
 		this.numCols = numCols;
-		camerax = worldWidth/2;
-		cameray = worldHeight/2;
+		camerax = width/2;
+		cameray = height/2;
 		gridMarks = true;
 		
 		for(int i = 0; i < commands.length; i++)
@@ -52,16 +63,42 @@ public class VariableMap extends JPanel
 	
 	}
 	
+	/**
+	 * Toggles the grid squares between visible and non-visible
+	 */
 	public void toggleGridMarks()
 	{
 		gridMarks = !gridMarks;
 	}
+	
+	/**
+	 * Currently testing a way to zoom the view of the map out
+	 */
+	public void zoomOut()
+	{
+		if((numRows < height - 10) & (numCols < width - 10))
+		{
+			numRows += 10;
+			numCols += 10;
+			if(numRows > height)
+				numRows = height;
+			if(numCols > width)
+				numCols = width;
+		}
+		
+		System.out.printf("w:%d h:%d\n",numCols, numRows);
+		
+		repaint();
+		
+	}
+	
 	
 	public void paintComponent(Graphics g)
 	{
 		super.paintComponent(g);
 		g.clearRect(0, 0, getWidth(), getHeight());
 		
+		//Determines the size of the grid square based on how many are displayed and screen size
 		int rectWidth = getWidth()/numCols;
 		int rectHeight = getHeight()/numRows;
 		
@@ -72,7 +109,7 @@ public class VariableMap extends JPanel
 				int x = j * rectHeight;
 				
 				
-				
+				//Determines what this locations terrain is and paints accordingly
 				Color color = new Color(getTerrainColor(camerax + j,cameray + i));
 				g.setColor(color);
 				g.fillRect(x,y,rectWidth,rectHeight);
@@ -86,6 +123,15 @@ public class VariableMap extends JPanel
 				
 	}
 	
+	/**
+	 * 
+	 * @param x
+	 * The X coordinate of the chosen cell within the map
+	 * @param y
+	 * The Y coordinate of the chosen cell within the map
+	 * @return
+	 * Returns an integer RGB value for use in painting the map
+	 */
 	private int getTerrainColor(int x, int y)
 	{
 		if(heightmap[x + y * width] < maxHeight * .65)
@@ -109,6 +155,9 @@ public class VariableMap extends JPanel
 		
 	}
 	
+	/*
+	 * List of all of the commands used on the map
+	 */
 	private String[] commands =
 		{
 			"UP",
@@ -124,11 +173,11 @@ public class VariableMap extends JPanel
 		{
 
 			String command = (String) ae.getActionCommand();
-			System.out.printf("%s\n", ae.toString());
 			
 			if(command.equals(commands[4]))
-				toggleGridMarks();
+				zoomOut();
 			
+			//Checks for map scrolling keys
 			if(command.equals(commands[0]))
 				cameray -= height/100;
 			if(command.equals(commands[1]))
@@ -138,6 +187,7 @@ public class VariableMap extends JPanel
 			if(command.equals(commands[3]))
 				camerax += height/100;
 			
+			//Keeps the camera within the bounds of the map
 			if(cameray < 0)
 				cameray = 0;
 			if(cameray > height - numRows)
@@ -159,7 +209,7 @@ public class VariableMap extends JPanel
 		{
 			JFrame frame = new JFrame();
 			frame.setLayout(new BorderLayout(10,10));
-			VariableMap map = new VariableMap(1000, 1000, 100, 100, 10);
+			VariableMap map = new VariableMap(new World("TestWorld", 600, 600), 100, 100, 10);
 			frame.setSize(1920, 1080);
 			frame.add(map, BorderLayout.CENTER);
 			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

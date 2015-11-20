@@ -4,13 +4,25 @@ import systemsfailed.world_sim.utils.SimplexNoiseGenerator;
 
 public class World 
 {
-	short[] heightmap;
-	byte[] heatmap;
+	short[] heightmap; //Stores the height value for each (x,y) coordinate
+	byte[] heatmap; //Stores temperature data for each (x,y) coordinate
+	int[] datamap; //Stores additional data for each (x,y) coordinate such as resources and city
 	short maxheight; 
 	byte maxtemp;
-	private long seed;
+	private long seed; //The seed used to generate the world
 	private int height,width;
 	
+	/**
+	 * Generates a new world defined by a seed value
+	 * Worlds generated in this way will be recreateable by repeating the seed
+	 * value in another generation attempt so long as the size is equal
+	 * @param seed
+	 * 	The seed value to feed the simplex noise generator that forms the world
+	 * @param height
+	 * 	The length of the y axis of the world's array
+	 * @param width
+	 * 	The length of the x axis of the world's array
+	 */
 	public World(String seed, final int height, final int width)
 	{
 		this.height = height;
@@ -19,6 +31,10 @@ public class World
 		final SimplexNoiseGenerator generator = new SimplexNoiseGenerator(this.seed);
 		final SimplexNoiseGenerator generator2 = new SimplexNoiseGenerator(this.seed);
 		
+		/*
+		 * Split the world generation into threads to increase the world generation speed
+		 * Using this method the average time for world generation was cut roughly in half
+		 */
 		Thread t1 = new Thread()
 		{	
 			@Override
@@ -29,6 +45,7 @@ public class World
 				System.out.println("Finishing 1");
 			}
 		};
+		//Split the heatmap generation onto it's own thread to decrease worldgen time
 		Thread t2 = new Thread()
 		{	
 			@Override
@@ -43,6 +60,10 @@ public class World
 		t1.start();
 		t2.start();
 		
+		/*
+		 * Uses Java's thread function join() to make the program wait for
+		 * both threads to finish before continuing with execution
+		 */
 		try
 		{
 		t1.join();
@@ -51,6 +72,19 @@ public class World
 		{e.printStackTrace();}
 	}
 	
+	/**
+	 * Generates a new world without a user defined seed value
+	 * the generator will take the current system time in milliseconds
+	 * for use as a seed, worlds generated this way won't be recreated 
+	 * unless the user retrieves their seed value
+	 * 
+	 * @param seed
+	 * 	The seed value to feed the simplex noise generator that forms the world
+	 * @param height
+	 * 	The length of the y axis of the world's array
+	 * @param width
+	 * 	The length of the x axis of the world's array
+	 */
 	public World(final int height, final int width)
 	{
 		this.seed = System.currentTimeMillis();
@@ -116,6 +150,16 @@ public class World
 		this.maxheight = max;
 	}
 	
+	/**
+	 * Generates the heatmap that determines the biome placement of the world
+	 * Runs on the same simplex noise generator and seed
+	 * @param height
+	 * 	How large the Y axis of the array will be
+	 * @param width
+	 * 	How large the X axis of the array will be
+	 * @param generator
+	 * A Simplex noise generator to generate the base pattern of the heatmap
+	 */
 	private void generateHeatmap(int height, int width, SimplexNoiseGenerator generator)
 	{
 		heatmap = new byte [height * width];
@@ -130,31 +174,60 @@ public class World
 		this.maxtemp = max;
 	}
 	
+	/**
+	 * @return
+	 *	The heightmap array of the world
+	 */
 	public short[] getHeightmap()
 	{
 		return heightmap;
 	}
 	
+	/**
+	 * @return
+	 * 	The heatmap array of the world
+	 */
 	public byte[] getHeatmap()
 	{
 		return heatmap;
 	}
-
+	
+	/**
+	 * @return
+	 * 	The datamap array of the world
+	 */
+	public int[] getDatamap()
+	{
+		return datamap;
+	}
+	/**
+	 * @return
+	 * 	The largest height value within the world array
+	 */
 	public int getMaxHeight()
 	{
 		return maxheight;
 	}
-	
+	/**
+	 * @return
+	 * 	The largest heat value within the world array
+	 */
 	public int getMaxTemp()
 	{
 		return maxtemp;
 	}
-	
+	/**
+	 * @return
+	 * 	The Y axis length of the world's array
+	 */
 	public int getHeight()
 	{
 		return height;
 	}
-	
+	/**
+	 * @return
+	 * 	The X axis length of the world's array
+	 */
 	public int getWidth()
 	{
 		return width;
