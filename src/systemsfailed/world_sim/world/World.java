@@ -5,7 +5,7 @@ import systemsfailed.world_sim.utils.SimplexNoiseGenerator;
 public class World 
 {
 	short[] heightmap; //Stores the height value for each (x,y) coordinate
-	byte[] heatmap; //Stores temperature data for each (x,y) coordinate
+	byte[] heatmap,resmap; //Stores temperature data for each (x,y) coordinate
 	int[] datamap; //Stores additional data for each (x,y) coordinate such as resources and city
 	short maxheight; 
 	byte maxtemp;
@@ -28,48 +28,8 @@ public class World
 		this.height = height;
 		this.width = width;
 		this.seed = seed.hashCode();
-		final SimplexNoiseGenerator generator = new SimplexNoiseGenerator(this.seed);
-		final SimplexNoiseGenerator generator2 = new SimplexNoiseGenerator(this.seed);
 		
-		/*
-		 * Split the world generation into threads to increase the world generation speed
-		 * Using this method the average time for world generation was cut roughly in half
-		 */
-		Thread t1 = new Thread()
-		{	
-			@Override
-			public void run()
-			{
-				System.out.println("Starting 1");
-				generateHeightmap(height, width, generator);
-				System.out.println("Finishing 1");
-			}
-		};
-		//Split the heatmap generation onto it's own thread to decrease worldgen time
-		Thread t2 = new Thread()
-		{	
-			@Override
-			public void run()
-			{
-				System.out.println("Starting 2");
-				generateHeatmap(height, width, generator2);
-				System.out.println("Finishing 2");
-			}
-		};
-		
-		t1.start();
-		t2.start();
-		
-		/*
-		 * Uses Java's thread function join() to make the program wait for
-		 * both threads to finish before continuing with execution
-		 */
-		try
-		{
-		t1.join();
-		t2.join();
-		}catch(Exception e)
-		{e.printStackTrace();}
+		generate();
 	}
 	
 	/**
@@ -87,9 +47,19 @@ public class World
 	 */
 	public World(final int height, final int width)
 	{
+		this.height = height;
+		this.width = width;
 		this.seed = System.currentTimeMillis();
+		
+		generate();
+	}
+	
+	/**
+	 * Helper method for constructor
+	 */
+	private void generate()
+	{
 		final SimplexNoiseGenerator generator = new SimplexNoiseGenerator(seed);
-		final SimplexNoiseGenerator generator2 = new SimplexNoiseGenerator(seed);
 		
 		Thread t1 = new Thread()
 		{	
@@ -122,6 +92,7 @@ public class World
 		}catch(Exception e)
 		{e.printStackTrace();}
 	}
+	
 	
 	/**
 	 * Generates the heightmap that the world map will be based on
@@ -172,6 +143,11 @@ public class World
 						max = heatmap[x + y * width];
 				}
 		this.maxtemp = max;
+	}
+	
+	private void generateResmap(int height, int width, SimplexNoiseGenerator gen)
+	{
+		resmap = new byte[height * width];
 	}
 	
 	/**
